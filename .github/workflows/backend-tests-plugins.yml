@@ -80,6 +80,7 @@ jobs:
       - name: Link etherpad to plugin
         working-directory: ./plugin
         run: |
+          echo "Linking plugin ${PLUGIN_NAME}"
           pnpm link --global ep_etherpad-lite
       -
         name: Run the backend tests
