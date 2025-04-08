@@ -7,15 +7,15 @@ on:
 
 jobs:
   backend:
-    uses: ./.github/workflows/plugins/backend-tests.yml
+    uses: ./.github/workflows/backend-tests-plugins.yml
     secrets: inherit
   frontend:
-    uses: ./.github/workflows/plugins/frontend-tests.yml
+    uses: ./.github/workflows/frontend-tests-plugins.yml
     secrets: inherit
   release:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     needs:
       - backend
       - frontend
-    uses: ./.github/workflows/plugins/npmpublish.yml
+    uses: ./.github/workflows/npmpublish-plugins.yml
     secrets: inherit

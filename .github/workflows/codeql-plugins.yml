@@ -2,19 +2,6 @@ name: "CodeQL"
 
 on:
   workflow_call:
-    secrets:
-      GITHUB_TOKEN:
-        required: true
-      NPM_TOKEN:
-        required: true
-      GITHUB_ENV:
-        required: true
-      GITHUB_OUTPUT:
-        required: true
-      GITHUB_WORKSPACE:
-        required: true
-      RUNNER_OS:
-        required: true
 
 jobs:
   analyze:
