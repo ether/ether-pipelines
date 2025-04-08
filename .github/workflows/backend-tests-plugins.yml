@@ -61,9 +61,6 @@ jobs:
           pnpm i
       - name: Install Etherpad core dependencies
         run: bin/installDeps.sh
-
-      - name: Setup etherpad
-        uses: ether/ether-pipelines@main
       - name: Run the backend tests
         run: |
           res=$(find .. -path "./node_modules/ep_*/static/tests/backend/specs/**" | wc -l)

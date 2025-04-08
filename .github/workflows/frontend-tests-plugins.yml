@@ -57,9 +57,6 @@ jobs:
           pnpm i
       - name: Install Etherpad core dependencies
         run: bin/installDeps.sh
-
-      - name: Setup etherpad
-        uses: ether/ether-pipelines@main
       # Etherpad core dependencies must be installed after installing the
       # plugin's dependencies, otherwise npm will try to hoist common
       # dependencies by removing them from src/node_modules and installing them
