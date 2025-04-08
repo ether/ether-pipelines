@@ -68,6 +68,7 @@ jobs:
       - name: Link plugin to etherpad-lite
         working-directory: ./etherpad-lite
         run: |
+          echo "Linking plugin ${PLUGIN_NAME}"
           pnpm link --global $PLUGIN_NAME
           pnpm run install-plugins --path  ../../plugin
         env:
