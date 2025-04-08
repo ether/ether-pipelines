@@ -1,0 +1,32 @@
+on:
+  workflow_call:
+    inputs:
+      pluginDirectory:
+        description: 'The directory of the plugin to test and release'
+        required: true
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: true
+
+
+jobs:
+  backend:
+    uses: ./.github/workflows/backend-tests-plugins-monorepo.yml
+    secrets: inherit
+    with:
+      pluginDirectory: ${{ inputs.pluginDirectory }}
+  frontend:
+    uses: ./.github/workflows/frontend-tests-plugins-monorepo.yml
+    with:
+      pluginDirectory: ${{ inputs.pluginDirectory }}
+    secrets: inherit
+  release:
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+    needs:
+      - backend
+      - frontend
+    uses: ./.github/workflows/npmpublish-plugins-monorepo.yml
+    with:
+      pluginDirectory: ${{ inputs.pluginDirectory }}
+    secrets: inherit

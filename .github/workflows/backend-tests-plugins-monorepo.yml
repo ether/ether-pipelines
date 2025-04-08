@@ -1,0 +1,76 @@
+name: Backend Tests
+
+# any branch is useful for testing before a PR is submitted
+on:
+  workflow_call:
+    inputs:
+      pluginDirectory:
+        description: 'The directory of the plugin to test and release'
+        required: true
+        type: string
+
+jobs:
+  withplugins:
+    # run on pushes to any branch
+    # run on PRs from external forks
+    if: |
+      (github.event_name != 'pull_request')
+      || (github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id)
+    name: with Plugins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Etherpad core
+        uses: actions/checkout@v3
+        with:
+          repository: ether/etherpad-lite
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Check out the plugin
+        uses: actions/checkout@v3
+        with:
+          path: ./node_modules/__tmp
+      - name: export GIT_HASH to env
+        id: environment
+        run: |
+          cd ./node_modules/__tmp
+          echo "::set-output name=sha_short::$(git rev-parse --short ${{ github.sha }})"
+      - name: Determine plugin name
+        id: plugin_name
+        run: |
+          cd ./node_modules/__tmp/${{ inputs.pluginDirectory }}
+          npx -c 'printf %s\\n "::set-output name=plugin_name::${npm_package_name}"'
+      - name: Rename plugin directory
+        env:
+          PLUGIN_NAME: ${{ steps.plugin_name.outputs.plugin_name }}
+        run: |
+          mv ./node_modules/__tmp/${{ inputs.pluginDirectory }} ./node_modules/"${PLUGIN_NAME}"
+      - name: Install plugin dependencies
+        env:
+          PLUGIN_NAME: ${{ steps.plugin_name.outputs.plugin_name }}
+        run: |
+          cd ./node_modules/"${PLUGIN_NAME}"
+          pnpm i
+      - name: Install Etherpad core dependencies
+        run: bin/installDeps.sh
+      - name: Run the backend tests
+        run: |
+          res=$(find .. -path "./node_modules/ep_*/static/tests/backend/specs/**" | wc -l)
+          if [ $res -eq 0 ]; then
+          echo "No backend tests found"
+          else
+          pnpm run test
+          fi
