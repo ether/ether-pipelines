@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup etherpad
-        uses: ./.github/workflows/setup-etherpad-with-plugins.yml
+        uses: ether/ether-pipelines@main
       - name: Run the backend tests
         run: |
           res=$(find .. -path "./node_modules/ep_*/static/tests/backend/specs/**" | wc -l)

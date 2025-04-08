@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Setup etherpad
-        uses: ./.github/workflows/setup-etherpad-with-plugins.yml
+        uses: ether/ether-pipelines@main
       # Etherpad core dependencies must be installed after installing the
       # plugin's dependencies, otherwise npm will try to hoist common
       # dependencies by removing them from src/node_modules and installing them
