@@ -51,9 +51,33 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           pnpm i
           pnpm version patch
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          cd ${{ inputs.pluginDirectory }}
+          echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+      - name: Check if tag exists
+        run: |
+          cd ${{ inputs.pluginDirectory }}
+          if git rev-parse v${{ steps.get_version.outputs.version }} >/dev/null 2>&1; then
+            echo "Tag v${{ steps.get_version.outputs.version }} already exists"
+          fi
+
+      - name: Remove existing tag if exists
+        run: |
+          cd ${{ inputs.pluginDirectory }}
+          if git rev-parse v${{ steps.get_version.outputs.version }} >/dev/null 2>&1; then
+            git push --delete origin v${{ steps.get_version.outputs.version }}
+            git tag -d v${{ steps.get_version.outputs.version }}
+          fi
+
+      - name: Create tag
+        run: |
+          cd ${{ inputs.pluginDirectory }}
           git add package.json
-          git commit -m "Bump version to $(node -p 'require(\"./package.json\").version')" 
-          git tag -a "${{ inputs.pluginDirectory }}$(node -p 'require(\"./package.json\").version')" -m "Version ${{ inputs.pluginDirectory }}$(node -p 'require(\"./package.json\").version')"
+          git commit -m "Bump Version for ${{ inputs.pluginDirectory }} to ${{ steps.get_version.outputs.version }}"
+          git tag -a ${{ inputs.pluginDirectory }}v${{ steps.get_version.outputs.version }} -m "Version ${{ inputs.pluginDirectory }} ${{ steps.get_version.outputs.version }}"
           git push --follow-tags
       # This is required if the package has a prepare script that uses something
       # in dependencies or devDependencies.
