@@ -78,7 +78,11 @@ jobs:
           git add package.json
           git commit -m "Bump Version for ${{ inputs.pluginDirectory }} to ${{ steps.get_version.outputs.version }}"
           git tag -a ${{ inputs.pluginDirectory }}v${{ steps.get_version.outputs.version }} -m "Version ${{ inputs.pluginDirectory }} ${{ steps.get_version.outputs.version }}"
-          git push --follow-tags
+          while true; do
+              git push --follow-tags && break
+              echo "Push failed. Pulling latest changes and retrying..."
+              git pull --rebase
+          done
       # This is required if the package has a prepare script that uses something
       # in dependencies or devDependencies.
       -
