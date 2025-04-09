@@ -51,6 +51,9 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           pnpm i
           pnpm version patch
+          git add package.json
+          git commit -m "Bump version to $(node -p 'require(\"./package.json\").version')" 
+          git tag -a "${{ inputs.pluginDirectory }}$(node -p 'require(\"./package.json\").version')" -m "Version ${{ inputs.pluginDirectory }}$(node -p 'require(\"./package.json\").version')"
           git push --follow-tags
       # This is required if the package has a prepare script that uses something
       # in dependencies or devDependencies.
@@ -71,7 +74,6 @@ jobs:
       -
         run: |
           cd ${{ inputs.pluginDirectory }}
-          git status
           pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
